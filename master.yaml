@@ -1,0 +1,8 @@
+Description: Master
+
+# Recurso de AWS
+Resources:
+  s3Buckets:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      TemplateURL: !Sub "https://infra-ci-labdeveloper-execute-task.s3.amazonaws.com/lambda.yaml"

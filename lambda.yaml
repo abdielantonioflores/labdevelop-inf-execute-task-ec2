@@ -1,0 +1,60 @@
+Description: Master
+rLambdaTaggingEc2:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Test Lambda service
+      FunctionName: 
+      Handler: Operation_Cloud_execute/index.lambda_handler
+      Code:
+        S3Bucket: infra-ci-labdeveloper-execute-task
+        S3Key: "lambdaCode/Operation_Cloud_execute.py"
+      Role: !GetAtt rIAMLambdaTaggingRoleEc2.Arn
+      Runtime: python3.7
+      MemorySize: 256
+      Timeout: 900
+
+rIAMLambdaTaggingRoleEc2:
+    Type: AWS::IAM::Role
+    Properties:
+      PermissionsBoundary: !Sub arn:aws:iam::${AWS::AccountId}:policy/labdevelop-inf-execute-task
+      RoleName: "lambda-tagging-ec2-iam-role"
+      Description: Role hacer consultas cross-account en las diferentes cuentas
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+          Action:
+            - sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaExecutionLogs
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - !Sub arn:aws:logs:us-east-1:${AWS::AccountId}:*
+        - PolicyName: SSMPolicies
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ssm:GetParameter"
+                Resource:
+                  - !Sub arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/*
+        # - PolicyName: DynamoDBTablePolicy
+        #   PolicyDocument:
+        #     Version: "2012-10-17"
+        #     Statement:
+        #       - Effect: Allow
+        #         Action:
+        #           - "dynamodb:GetItem"
+        #         Resource:
+        #           - !Sub arn:aws:dynamodb:*:${AWS::AccountId}:table/*
